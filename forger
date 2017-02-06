@@ -1,0 +1,26 @@
+import json
+from scapy.all import *
+import socket
+import time
+# takes a codepoint, a hosts file and a TTL value
+def emit(codepoint,filename,tl):
+    sp= 53000 + codepoint
+    print("Sending for codepoint %d with TTL %d, source port: %d" % (codepoint, tl, sp))
+    pkts = []
+    with open(filename) as f:
+        for line in f:
+	    target = json.loads(line)
+            tf=codepoint<<2
+            if '.' in target["ip"]:
+                # IP addresses are hardcoded, need changing to match the machine you are running it from
+                # Currently doing UDP, but you can send DNS queries over TCP	
+                pkts.append(IP(src="46.101.145.148",dst=target["ip"],tos=tf, ttl=tl)/UDP(sport=sp, dport=53)/DNS(rd=1,qd=DNSQR(qname=target["domain"])))
+            else:
+                pkts.append(IPv6(src="2a03:b0c0:3:d0::2b9b:9001",dst=target["ip"],tc=tf, hlim=tl)/UDP(sport=sp, dport=53)/DNS(rd=1,qd=DNSQR(qname=target["domain"])))
+    send(pkts)
+
+#send packets for all 64 codepoints, TTLs 1-30
+for cp in range(0,64):
+    for tl in range(1,30):
+        emit(cp, "hosts.jsonnd", tl)
+        time.sleep(3)
