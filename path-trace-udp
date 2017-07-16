@@ -1,6 +1,6 @@
 import json
 from scapy.all import *
-import socketi
+import socket
 from pyroute2 import IPDB
 import time
 # takes a codepoint, a hosts file and a TTL value
