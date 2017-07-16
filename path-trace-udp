@@ -57,9 +57,9 @@ tcpdump = subprocess.Popen(['/usr/sbin/tcpdump', '-w', wr_str,'-i', str(ifname),
 cmp or icmp6 or port 53'])
 for cp in range(0,64):
     for tl in range(1,4):
-        emit_slow(cp, "hosts.jsonnd", tl, iface, iface6)
+        emit_slow(cp, "top500-160717-ns.jsonnd", tl, iface, iface6)
     for tl in range(4,31):
-        emit(cp, "hosts.jsonnd", tl), iface, iface6)
+        emit(cp, "top500-160717-ns.jsonnd", tl), iface, iface6)
 time.sleep(30)
 print("\n Killing tcpdump")
 tcpdump.kill()
