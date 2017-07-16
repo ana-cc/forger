@@ -12,7 +12,11 @@ def emit(codepoint,filename,tl,iface,iface6):
     pkts = []
     with open(filename) as f:
         for line in f:
-	    target = json.loads(line)
+	    try:
+                target = json.loads(line)
+            except ValueError:
+                pass
+            print target
             tf=(codepoint<<2) | 0b00000011
             if '.' in target["ip"]:
                 # Currently doing TCP	
@@ -27,7 +31,10 @@ def emit_slow(codepoint,filename,tl,iface,iface6):
     pkts = []
     with open(filename) as f:
         for line in f:
-            target = json.loads(line)
+	    try:
+                target = json.loads(line)
+            except ValueError:
+                pass
             tf=(codepoint<<2) | 0b00000011
             if '.' in target["ip"]:
                 # Currently doing TCP
