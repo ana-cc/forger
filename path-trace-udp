@@ -1,0 +1,66 @@
+import json
+from scapy.all import *
+import socketi
+from pyroute2 import IPDB
+import time
+# takes a codepoint, a hosts file and a TTL value
+def emit(codepoint,filename,tl,iface,iface6):
+    sp= 53000 + codepoint
+    print("Sending for codepoint %d with TTL %d, source port: %d" % (codepoint, tl, sp))
+    pkts = []
+    with open(filename) as f:
+        for line in f:
+	    target = json.loads(line)
+            tf=(codepoint<<2)&& 0b00000011
+            if '.' in target["ip"]:
+                # IP addresses are hardcoded, need changing to match the machine you are running it from
+                # Currently doing UDP, but you can send DNS queries over TCP	
+                pkts.append(IP(src=iface,dst=target["ip"],tos=tf, ttl=tl)/UDP(sport=sp, dport=53)/DNS(rd=1,qd=DNSQR(qname=target["domain"])))
+            else:
+                pkts.append(IPv6(src=iface6,dst=target["ip"],tc=tf, hlim=tl)/UDP(sport=sp, dport=53)/DNS(rd=1,qd=DNSQR(qname=target["domain"])))
+    send(pkts)
+
+def emit_slow(codepoint,filename,tl,iface,iface6):
+    sp= 53000 + codepoint
+    print("Sending for codepoint %d with TTL %d, source port: %d" % (codepoint, tl, sp))
+    pkts = []
+    with open(filename) as f:
+        for line in f:
+            target = json.loads(line)
+            tf=(codepoint<<2)&& 0b00000011
+            if '.' in target["ip"]:
+                # IP addresses are hardcoded, need changing to match the machine you are running
+from
+                # Currently doing UDP, but you can send DNS queries over TCP
+                pkt=IP(src=iface,dst=target["ip"],tos=tf, ttl=tl)/UDP(sport=sp
+port=53)/DNS(rd=1,qd=DNSQR(qname=target["domain"]))
+                send(pkt)
+                time.sleep(0.3)
+            else:
+                pkt=IPv6(src=iface6,dst=target["ip"],tc=tf, hlim=tl)
+P(sport=sp, dport=53)/DNS(rd=1,qd=DNSQR(qname=target["domain"]))
+                send(pkt)
+                time.sleep(0.3)
+
+
+#send packets for all 64 codepoints, TTLs 1-30
+
+ip = IPDB()  
+s = set([interface.ifname for interface in ip.interfaces.values()])
+s.remove('lo')
+hostname = socket.gethostname()
+wr_str = "/tmp/" + str(hostname) + "-udp.pcap"
+ifname=s.pop()
+iface= [ i[0] for i in ip.interfaces[ifname].ipaddr if '.' in i[0] and not ipaddress.ip_address(i[0].decode("utf-8")).is_private]
+iface6=[ i[0] for i in ip.interfaces[ifname].ipaddr if ':' in i[0] and not ipaddress.ip_address(i[0].decode("utf-8")).is_private]
+tcpdump = subprocess.Popen(['/usr/sbin/tcpdump', '-w', wr_str,'-i', str(ifname), 'i
+cmp or icmp6 or port 53'])
+for cp in range(0,64):
+    for tl in range(1,4):
+        emit_slow(cp, "hosts.jsonnd", tl, iface, iface6)
+    for tl in range(4,31):
+        emit(cp, "hosts.jsonnd", tl), iface, iface6)
+time.sleep(30)
+print("\n Killing tcpdump")
+tcpdump.kill()
+
