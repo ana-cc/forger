@@ -16,7 +16,6 @@ def emit(codepoint,filename,tl,iface,iface6):
                 target = json.loads(line)
             except ValueError:
                 pass
-            print target
             tf=(codepoint<<2) | 0b00000011
             if '.' in target["ip"]:
                 # Currently doing TCP	
