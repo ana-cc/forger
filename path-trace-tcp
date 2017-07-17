@@ -57,7 +57,7 @@ wr_str = "/tmp/" + str(hostname) + "-udp.pcap"
 ifname=s.pop()
 iface= [ i[0] for i in ip.interfaces[ifname].ipaddr if '.' in i[0] and not ipaddress.ip_address(i[0].decode("utf-8")).is_private]
 iface6=[ i[0] for i in ip.interfaces[ifname].ipaddr if ':' in i[0] and not ipaddress.ip_address(i[0].decode("utf-8")).is_private]
-tcpdump = subprocess.Popen(['/usr/sbin/tcpdump', '-w', wr_str,'-i', str(ifname), 'icmp or icmp6 or port 53'])
+tcpdump = subprocess.Popen(['/usr/sbin/tcpdump', '-w', wr_str,'-i', str(ifname), 'icmp or icmp6 or tcp[13]=18'])
 for cp in range(0,64):
     for tl in range(1,4):
         emit_slow(cp, "top500-160717-host.jsonnd", tl, iface, iface6)
